@@ -1,5 +1,6 @@
 .idea/
 tmp/
+target/
 mjdataprocess.iml
 files.txt
 log.txt
