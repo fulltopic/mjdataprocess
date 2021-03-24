@@ -22,19 +22,20 @@ object TestLmdbGen extends App {
     case _ => logger.error("Not logback backend, unable to set log level")
   }
 
+//  val dbPath = "/run/media/zf/Newsmy/mjres/pf4/test/xml_pf4-20_n1"
   val dbPath = "/run/media/zf/Newsmy/mjres/pf4/test/testdb"
-
+  val dbName: String = null
   def testGen(): Unit = {
     val dirPath = "/run/media/zf/Newsmy/mjres/pf4/test/xmls/xml_pf4-20_n1"
 
-    val gen = new LmdbGenerator(dbPath, dirPath, GameType.Default)
+    val gen = new LmdbGenerator(dbPath, dbName, dirPath, GameType.Default)
     gen.process()
   }
 
   def testRead(): Unit = {
     val dbFile = new File(dbPath)
     val env: Env[ByteBuffer] = Env.create().setMapSize((1024 * 1024) * 1024L * 2L).setMaxDbs(1).open(dbFile)
-    val db = env.openDbi("TEST", DbiFlags.MDB_CREATE)
+    val db = env.openDbi(dbName, DbiFlags.MDB_CREATE)
 
     val stateSize = GameFactory.GetGame(GameType.Default).getStateDim.product
 //    val keyBuffer = Array.ofDim[Byte](env.getMaxKeySize)
@@ -69,14 +70,16 @@ object TestLmdbGen extends App {
       logger.info("Get actions: {}", protos.protos(1).int32Data.toArray)
       logger.info("Get rewards: {}", protos.protos(2).floatData.toArray)
 
-      if (sceneId == 2) {
-        TestReadState.parseCloseTiles((protos.protos.head.dims.head - 1).toInt, protos.protos.head.int32Data.toList, protos.protos.head.dims.toArray)
-        TestReadState.parseOpenTiles((protos.protos.head.dims.head - 1).toInt, protos.protos.head.int32Data.toList, protos.protos.head.dims.toArray)
-        val drops = TestReadState.parseTiles(DefaultConsts.Player2DropTile, (protos.protos.head.dims.head - 1).toInt, protos.protos.head.int32Data.toList, protos.protos.head.dims.toArray)
-        logger.info("Drop from 2: {}", drops)
-      }
+//      if (sceneId == 0) {
+////        val seqIndex: Int = (protos.protos.head.dims.head - 1).toInt
+//        val seqIndex: Int = 0
+//        TestReadState.parseCloseTiles(seqIndex, protos.protos.head.int32Data.toList, protos.protos.head.dims.toArray)
+//        TestReadState.parseOpenTiles(seqIndex, protos.protos.head.int32Data.toList, protos.protos.head.dims.toArray)
+//        val drops = TestReadState.parseTiles(DefaultConsts.Player2DropTile, seqIndex, protos.protos.head.int32Data.toList, protos.protos.head.dims.toArray)
+//        logger.info("Drop from 2: {}", drops)
+//      }
 
-      sceneId += 1
+//      sceneId += 1
 
       if (cursor.next()) {
         readRecords()

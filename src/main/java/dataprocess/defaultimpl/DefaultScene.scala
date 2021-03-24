@@ -304,9 +304,9 @@ class DefaultScene(levels: Array[Int], rates: Array[Int]) extends BaseScene{
               chiPos = i
             }
           }
-          val action = DefaultConsts.ChiPos1Action + chiPos
+//          val action = DefaultConsts.ChiPos1Action + chiPos
           val tran = createTran(state, 0)
-          tran.setChiAction(action)
+          tran.setChiAction(chiPos)
 
           hangState = None
 
@@ -347,9 +347,9 @@ class DefaultScene(levels: Array[Int], rates: Array[Int]) extends BaseScene{
       hangState match {
         case Some(state) => {
           logger.debug("Me pon")
-          val action = DefaultConsts.PonMiss1Action + rawTile4
+//          val action = DefaultConsts.PonMiss1Action + rawTile4
           val tran = createTran(state, 0)
-          tran.setPonAction(action)
+          tran.setPonAction(rawTile4)
 
           hangState = None
 

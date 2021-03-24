@@ -10,11 +10,11 @@ import org.slf4j.{Logger, LoggerFactory}
 import xmlparser.XmlFileProcessor
 
 import java.io.File
-import java.nio.ByteBuffer
+import java.nio.{ByteBuffer, ByteOrder}
 import java.nio.charset.StandardCharsets
 import scala.annotation.tailrec
 
-class LmdbGenerator (dbPath: String, xmlDirPath: String, gameType: GameType) {
+class LmdbGenerator (dbPath: String, dbName: String, xmlDirPath: String, gameType: GameType) {
   val logger: Logger = LoggerFactory.getLogger(getClass)
   //generate dir file for file iterator
   //generate db
@@ -22,17 +22,17 @@ class LmdbGenerator (dbPath: String, xmlDirPath: String, gameType: GameType) {
   val dbFile = new File(dbPath)
   dbFile.deleteOnExit()
   val env: Env[ByteBuffer] = Env.create().setMapSize((1024 * 1024) * 1024L * 2).setMaxDbs(1).open(dbFile)
-  val db: Dbi[ByteBuffer] = env.openDbi("TEST", DbiFlags.MDB_CREATE)
+  val db: Dbi[ByteBuffer] = env.openDbi(dbName, DbiFlags.MDB_CREATE)
   val dummyGame: BaseGame = GameFactory.GetGame(gameType)
   val stateDims: List[Long] = dummyGame.getStateDim.map(_.toLong)
 
-  val keyBuffer: ByteBuffer = ByteBuffer.allocateDirect(env.getMaxKeySize)
-  val valueBuffer: ByteBuffer = ByteBuffer.allocateDirect((stateDims.product * 20 * 2).toInt)
+  val keyBuffer: ByteBuffer = ByteBuffer.allocateDirect(env.getMaxKeySize).order(ByteOrder.BIG_ENDIAN)
+  val valueBuffer: ByteBuffer = ByteBuffer.allocateDirect((stateDims.product * 20 * 2).toInt).order(ByteOrder.BIG_ENDIAN)
 
   def process(): Unit = {
     val files = getFileList
-    files.foreach(processFile)
-//    processFile(files.head)
+//    files.foreach(processFile)
+    processFile(files.head)
 
     db.close()
   }
